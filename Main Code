@@ -1,0 +1,63 @@
+import RPi.GPIO as GPIO
+import time
+
+# GPIO pin setup
+MOISTURE_PIN = 17  # Soil Moisture Sensor connected to GPIO17
+RELAY_PIN = 18     # Relay connected to GPIO18 to control water pump
+
+
+# Threshold values
+SOIL_MOISTURE_THRESHOLD = 0 #it will compare  the sensor readings with 0(dry state)
+
+# Setup the GPIO mode and pins
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(MOISTURE_PIN, GPIO.IN)
+GPIO.setup(RELAY_PIN, GPIO.OUT)
+
+
+# Function to read soil moisture
+def read_soil_moisture():
+    moisture_level = GPIO.input(MOISTURE_PIN)
+    return moisture_level
+
+
+# Function to control irrigation
+
+def control_irrigation():
+    
+    
+    moisture = read_soil_moisture()
+   
+    
+    if moisture == SOIL_MOISTURE_THRESHOLD:
+        print("Soil is wet enough. No need for irrigation.")
+        print("Status:Pump is turned off.")
+        GPIO.output(RELAY_PIN, GPIO.LOW)
+        GPIO.output(RELAY_PIN, GPIO.HIGH)  
+         # Turn off water pump
+        
+    else:
+        print("Soil is dry. Turning on irrigation.")
+        time.sleep(5)
+        print("Watering the Plant...\n")
+
+        GPIO.output(RELAY_PIN, GPIO.HIGH)  # Turn on water pump
+       
+        GPIO.output(RELAY_PIN, GPIO.LOW)  # Turn off water pump
+        time.sleep(10)
+        print("Status:Plant is watered. ")
+        print("Status:Pump is turned on. ")
+         
+       
+# Main loop
+try:
+   
+    print("Raspberry Pi 5 is set up. Checking plant condition...\n")
+    control_irrigation()
+        
+
+except KeyboardInterrupt:
+    print("Program interrupted")
+
+finally:
+    GPIO.cleanup()  # Cleanup GPIO settings
